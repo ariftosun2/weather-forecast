@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 )
@@ -55,28 +57,48 @@ func weatherGet(c echo.Context) error {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	var std1 *ApiResult
+
 	for _, element := range req.Result {
-		fmt.Println("Gün       : " + element.Day)
-		fmt.Println("Tarih     : " + element.Date)
-		fmt.Println("Açıklama  : " + element.Description)
-		fmt.Println("Derece    : " + element.Degree)
-		fmt.Println("")
+		std1.Day = element.Day
+		std1.Date = element.Date
+		std1.Description = element.Description
+		std1.Degree = element.Degree
 	}
-	return c.JSON(http.StatusOK, req)
+	for _, element := range req.Result {
+		fmt.Println(element.Date)
+		fmt.Println(element.Day)
+	}
+
+	t, err := template.ParseFiles("index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// standard output to print merged data
+	err = t.Execute(os.Stdout, std1)
+
+	return c.JSON(http.StatusOK, err)
 
 }
-func ruquestWeather(city, country, token string) (ApiResponse, error) {
-	url := "https://api.collectapi.com/weather/getWeather?data.lang=" + "&data.city=" + country + city
+func ruquestWeather(city, country, token string) (*ApiResponse, error) {
+	url := "https://api.collectapi.com/weather/getWeather?&data.lang/{*}&data.city/{*}" + country + city
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", token)
 
-	resq, _ := http.DefaultClient.Do(req)
+	resq, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	defer resq.Body.Close()
 
-	body, _ := ioutil.ReadAll(resq.Body)
+	bodys, _ := ioutil.ReadAll(resq.Body)
 	var newBody ApiResponse
-	json.Unmarshal(body, &newBody)
-	return newBody, nil
+	err = json.Unmarshal(bodys, &newBody)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &newBody, nil
 }
