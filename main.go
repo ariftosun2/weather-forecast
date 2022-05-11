@@ -13,16 +13,16 @@ import (
 )
 
 type ApiResult struct {
-	Date        string
-	Day         string
-	Icon        string
-	Description string
-	Status      string
-	Degree      string
-	Min         string
-	Max         string
-	Night       string
-	Humidity    string
+	Date        string `json:"date"`
+	Day         string `json:"day"`
+	Icon        string `json:"icon"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	Degree      string `json:"degree"`
+	Min         string `json:"min"`
+	Max         string `json:"max"`
+	Night       string `json:"night"`
+	Humidity    string `json:"humidity"`
 }
 
 type wantCoutry struct {
@@ -59,10 +59,19 @@ func weatherGet(c echo.Context) error {
 	var std1 *ApiResult
 
 	for _, element := range req.Result {
-		std1.Day = element.Day
-		std1.Date = element.Date
-		std1.Description = element.Description
-		std1.Degree = element.Degree
+		std1 = &ApiResult{
+			Day:         element.Day,
+			Date:        element.Date,
+			Description: element.Description,
+			Degree:      element.Degree,
+			Icon:        element.Icon,
+			Status:      element.Status,
+			Min:         element.Min,
+			Max:         element.Max,
+			Night:       element.Night,
+			Humidity:    element.Humidity,
+		}
+
 	}
 	for _, element := range req.Result {
 		fmt.Println(element.Date)
