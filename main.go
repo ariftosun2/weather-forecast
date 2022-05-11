@@ -26,9 +26,8 @@ type ApiResult struct {
 }
 
 type wantCoutry struct {
-	City   string `json:"city"`
-	Coutry string `json:"coutry"`
-	Token  string `json:"token"`
+	City  string `json:"city"`
+	Token string `json:"token"`
 }
 type ApiResponse struct {
 	Success bool        `[]byte:"success" json:"success,omitempty"`
@@ -53,7 +52,7 @@ func weatherGet(c echo.Context) error {
 		log.Fatal(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	req, err := ruquestWeather(objRequest.City, objRequest.Coutry, objRequest.Token)
+	req, err := ruquestWeather(objRequest.City, objRequest.Token)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -81,8 +80,8 @@ func weatherGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, err)
 
 }
-func ruquestWeather(city, country, token string) (*ApiResponse, error) {
-	url := "https://api.collectapi.com/weather/getWeather?&data.lang/{*}&data.city/{*}" + country + city
+func ruquestWeather(city, token string) (*ApiResponse, error) {
+	url := "https://api.collectapi.com/weather/getWeather?data.lang=tr&data.city=" + city
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", token)
